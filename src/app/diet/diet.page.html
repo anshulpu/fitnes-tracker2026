@@ -1,0 +1,276 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="custom-toolbar">
+    <ion-title>Smart Diet Tracker</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="diet-content">
+  <div class="content-wrapper" *ngIf="todayPlan() as plan">
+    <ion-card class="glass-card gradient-primary animate-fade">
+      <div class="smart-suggestion-head">
+        <div class="title-wrap">
+          <ion-icon name="sparkles"></ion-icon>
+          <h2>Smart AI Suggestion</h2>
+        </div>
+        <span class="chip">{{ remainingCalories() }} cal left</span>
+      </div>
+      <p>{{ smartSuggestion() }}</p>
+    </ion-card>
+
+    <ion-card class="glass-card animate-fade calorie-summary">
+      <div class="summary-content">
+        <div class="calorie-info">
+          <h2>{{ plan.totalCalories }}</h2>
+          <p>of {{ plan.targetCalories }} cal</p>
+          <div class="streak-badge" *ngIf="streakCount() > 0">
+            <ion-icon name="flame"></ion-icon>
+            {{ streakCount() }} Day Streak
+          </div>
+        </div>
+
+        <div class="calorie-chart">
+          <svg width="100" height="100" aria-hidden="true">
+            <circle class="chart-bg" cx="50" cy="50" r="45"></circle>
+            <circle
+              class="chart-fill"
+              cx="50"
+              cy="50"
+              r="45"
+              [style.stroke-dashoffset]="283 - (283 * calorieProgress())"
+            ></circle>
+          </svg>
+          <div class="chart-percentage">{{ (calorieProgress() * 100).toFixed(0) }}%</div>
+        </div>
+      </div>
+
+      <ion-progress-bar [value]="calorieProgress()" class="calorie-progress"></ion-progress-bar>
+
+      <div class="macro-progress">
+        <div class="macro-head">
+          <span>Protein: {{ totalProtein() }}g / {{ proteinTarget() }}g</span>
+          <span>{{ (proteinProgress() * 100).toFixed(0) }}%</span>
+        </div>
+        <ion-progress-bar [value]="proteinProgress()" class="protein-progress"></ion-progress-bar>
+      </div>
+
+      <div class="goal-selector">
+        <p>
+          <ion-icon name="trophy"></ion-icon>
+          Goal System
+        </p>
+        <div class="goal-buttons">
+          <button
+            *ngFor="let goal of goals"
+            (click)="selectGoal(goal.key)"
+            [class.active]="selectedGoal() === goal.key"
+            class="goal-btn"
+            type="button"
+          >
+            {{ goal.label }}
+          </button>
+        </div>
+      </div>
+    </ion-card>
+
+    <ion-card class="glass-card animate-fade analytics-card">
+      <div class="section-head">
+        <div class="title-wrap">
+          <ion-icon name="bar-chart"></ion-icon>
+          <h3>Weekly Analytics</h3>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas #weeklyCanvas></canvas>
+      </div>
+    </ion-card>
+
+    <div class="two-col-grid animate-fade">
+      <ion-card class="glass-card water-card">
+        <div class="section-head">
+          <div class="title-wrap">
+            <ion-icon name="water"></ion-icon>
+            <h3>Water Tracker</h3>
+          </div>
+        </div>
+        <div class="water-controls">
+          <ion-button fill="clear" (click)="adjustWater(-1)" [disabled]="waterGlasses() === 0">
+            <ion-icon slot="icon-only" name="remove"></ion-icon>
+          </ion-button>
+          <div class="water-count">{{ waterGlasses() }} / {{ waterTarget }} glasses</div>
+          <ion-button fill="clear" (click)="adjustWater(1)" [disabled]="waterGlasses() === waterTarget">
+            <ion-icon slot="icon-only" name="add"></ion-icon>
+          </ion-button>
+        </div>
+        <ion-progress-bar [value]="waterProgress()" class="water-progress"></ion-progress-bar>
+      </ion-card>
+
+      <ion-card class="glass-card history-cta">
+        <div class="section-head">
+          <div class="title-wrap">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <h3>History Feature</h3>
+          </div>
+        </div>
+        <p>Review your previous days and check consistency trends.</p>
+        <ion-button class="history-btn" (click)="openHistoryModal()">
+          View History
+        </ion-button>
+      </ion-card>
+    </div>
+
+    <div class="meals-section">
+      <div
+        class="meal-card glass-card animate-fade"
+        *ngFor="let mealType of mealTypes; trackBy: trackByMealType; let i = index"
+        [style.animation-delay]="i * 0.08 + 's'"
+      >
+        <div class="meal-header">
+          <div class="meal-title-section">
+            <div class="meal-icon" [class]="'gradient-' + mealType">
+              <ion-icon [name]="getMealIcon(mealType)"></ion-icon>
+            </div>
+            <div>
+              <h3>{{ getMealTitle(mealType) }}</h3>
+              <p class="meal-time">{{ getMeal(mealType)?.time || '--:--' }}</p>
+            </div>
+          </div>
+          <div class="meal-calories">
+            <span class="calories-value">{{ getMeal(mealType)?.totalCalories || 0 }}</span>
+            <span class="calories-label">cal</span>
+          </div>
+        </div>
+
+        <div class="meal-items" *ngIf="getMeal(mealType)?.items?.length; else emptyMealState">
+          <div
+            class="meal-item"
+            *ngFor="let item of getMeal(mealType)!.items; trackBy: trackByMealItem"
+          >
+            <div class="item-info">
+              <span class="item-name">{{ item.name }}</span>
+              <div class="item-macros">
+                <span *ngIf="item.protein">P: {{ item.protein }}g</span>
+                <span *ngIf="item.carbs">C: {{ item.carbs }}g</span>
+                <span *ngIf="item.fats">F: {{ item.fats }}g</span>
+              </div>
+            </div>
+            <div class="item-actions">
+              <span class="item-calories">{{ item.calories }} cal</span>
+              <ion-button
+                fill="clear"
+                size="small"
+                (click)="removeMealItem(mealType, item.id)"
+                class="delete-button"
+              >
+                <ion-icon slot="icon-only" name="trash"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #emptyMealState>
+          <div class="empty-state">
+            <ion-icon name="restaurant"></ion-icon>
+            <p>No items added yet. Start with a healthy choice.</p>
+          </div>
+        </ng-template>
+
+        <ion-button expand="block" fill="outline" size="small" (click)="openAddModal(mealType)" class="add-item-button">
+          <ion-icon slot="start" name="add"></ion-icon>
+          Add Item
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button class="custom-fab" (click)="openAddModal('snacks')">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-modal [isOpen]="isModalOpen()" (didDismiss)="closeModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar class="modal-toolbar">
+          <ion-title>Add {{ getMealTitle(selectedMealType()) }} Item</ion-title>
+          <ion-button slot="end" fill="clear" (click)="closeModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content">
+        <div class="modal-form">
+          <ion-list class="form-list">
+            <ion-item>
+              <ion-label position="stacked">Food Name *</ion-label>
+              <ion-input [ngModel]="itemName()" (ngModelChange)="itemName.set($event)" placeholder="e.g., Grilled Chicken"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Calories *</ion-label>
+              <ion-input type="number" [ngModel]="calories()" (ngModelChange)="calories.set(+$event || 0)" placeholder="0"></ion-input>
+            </ion-item>
+
+            <div class="macros-section">
+              <h4>Macronutrients (Optional)</h4>
+              <div class="macros-grid">
+                <ion-item>
+                  <ion-label position="stacked">Protein (g)</ion-label>
+                  <ion-input type="number" [ngModel]="protein()" (ngModelChange)="protein.set(+$event || 0)" placeholder="0"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Carbs (g)</ion-label>
+                  <ion-input type="number" [ngModel]="carbs()" (ngModelChange)="carbs.set(+$event || 0)" placeholder="0"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Fats (g)</ion-label>
+                  <ion-input type="number" [ngModel]="fats()" (ngModelChange)="fats.set(+$event || 0)" placeholder="0"></ion-input>
+                </ion-item>
+              </div>
+
+              <ion-button expand="block" fill="outline" size="small" (click)="calculateCaloriesFromMacros()" class="calculate-button">
+                Calculate Calories from Macros
+              </ion-button>
+            </div>
+          </ion-list>
+
+          <div class="modal-actions">
+            <ion-button expand="block" (click)="addMealItem()" class="add-button">
+              <ion-icon slot="start" name="checkmark"></ion-icon>
+              Add Item
+            </ion-button>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [isOpen]="isHistoryModalOpen()" (didDismiss)="closeHistoryModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar class="modal-toolbar">
+          <ion-title>Diet History</ion-title>
+          <ion-button slot="end" fill="clear" (click)="closeHistoryModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content">
+        <div class="history-list">
+          <div class="history-item" *ngFor="let day of historyData(); trackBy: trackByHistoryDay">
+            <div class="history-date">{{ day.date }}</div>
+            <div class="history-meta">
+              <span>{{ day.calories }} / {{ day.targetCalories }} cal</span>
+              <span>{{ day.waterGlasses }} glasses</span>
+              <span [class.success]="day.goalMet">{{ day.goalMet ? 'Goal Met' : 'Over Target' }}</span>
+            </div>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

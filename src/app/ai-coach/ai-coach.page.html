@@ -1,0 +1,91 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="custom-toolbar">
+    <ion-title>AI Coach</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ai-coach-content">
+  <div class="content-wrapper" *ngIf="adaptiveState() as ai">
+    <ion-card class="coach-hero-card">
+      <ion-card-content>
+        <p class="hero-label">Recommendation</p>
+        <h2 class="hero-title">{{ ai.workoutRecommendation.label }}</h2>
+        <p class="hero-summary">{{ ai.summaryMessage }}</p>
+
+        <div class="hero-meta">
+          <span class="status-chip" [ngClass]="ai.recoveryStatus">{{ ai.recoveryStatus | titlecase }}</span>
+          <span class="fatigue-chip">Fatigue {{ ai.fatigueScore | number:'1.0-0' }}/100</span>
+        </div>
+
+        <div class="hero-actions">
+          <ion-button size="small" (click)="goToWorkouts()">
+            <ion-icon slot="start" name="fitness"></ion-icon>
+            Start Workout
+          </ion-button>
+          <ion-button size="small" fill="outline" (click)="goToDiet()">
+            <ion-icon slot="start" name="nutrition"></ion-icon>
+            Diet Plan
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="coach-detail-card">
+      <ion-card-content>
+        <div *ngIf="ai.goalPrediction as goal" class="goal-block">
+          <p class="goal-message">{{ goal.message }}</p>
+          <p class="goal-meta">Confidence: {{ goal.confidence | titlecase }}</p>
+        </div>
+
+        <div *ngIf="ai.overtraining.isAtRisk" class="overtraining-alert">
+          <ion-icon name="warning"></ion-icon>
+          <span>{{ ai.overtraining.message }}</span>
+        </div>
+
+        <div class="fatigue-history" *ngIf="fatigueHistory() as history">
+          <div class="fatigue-history-header">Fatigue trend (7 days)</div>
+          <div class="fatigue-history-bars" *ngIf="history.length > 0; else noHistory">
+            <div class="fatigue-bar" *ngFor="let point of history">
+              <div
+                class="fatigue-bar-inner"
+                [style.height.%]="getFatigueBarHeight(point.fatigueScore)"
+                [class.risk]="point.isOvertrainingRisk">
+              </div>
+              <span class="fatigue-bar-label">{{ getWeekDayLabel(point.date) }}</span>
+            </div>
+          </div>
+          <ng-template #noHistory>
+            <p class="fatigue-history-empty">History builds as you use the app each day.</p>
+          </ng-template>
+        </div>
+
+        <ion-item lines="none" class="sleep-input-item">
+          <ion-label position="floating">Sleep last night (hours)</ion-label>
+          <ion-input
+            type="number"
+            inputmode="decimal"
+            [value]="ai.sleepHours ?? ''"
+            (ionBlur)="onSleepBlur($event)">
+          </ion-input>
+        </ion-item>
+
+        <div class="coach-grid">
+          <div class="coach-cell">
+            <p>Workout intensity</p>
+            <strong>{{ ai.workoutRecommendation.intensity | titlecase }}</strong>
+          </div>
+          <div class="coach-cell">
+            <p>Protein focus</p>
+            <strong>{{ ai.dietRecommendation.proteinAdjustment | titlecase }}</strong>
+          </div>
+          <div class="coach-cell">
+            <p>Calories</p>
+            <strong>{{ ai.dietRecommendation.calorieAdjustment | titlecase }}</strong>
+          </div>
+        </div>
+
+        <p class="notes">{{ ai.dietRecommendation.notes }}</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

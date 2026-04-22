@@ -1,0 +1,85 @@
+<ion-content [fullscreen]="true" class="auth-shell">
+  <div class="bg-layer"></div>
+
+  <section class="auth-layout">
+    <header class="brand-head">
+      <div class="brand-icon-wrap">
+        <ion-icon name="pulse"></ion-icon>
+      </div>
+      <h1>FitTrack Pro</h1>
+      <p>Your Personal Fitness Companion</p>
+    </header>
+
+    <article class="login-card">
+      <h2>Login Account</h2>
+      <p class="card-subtitle">Continue your fitness journey</p>
+
+      <p class="label">Login As</p>
+      <div class="role-toggle">
+        <button type="button" [class.active]="role() === 'admin'" (click)="selectRole('admin')">
+          <ion-icon name="shield-checkmark"></ion-icon>
+          Admin
+        </button>
+        <button type="button" [class.active]="role() === 'member'" (click)="selectRole('member')">
+          <ion-icon name="person"></ion-icon>
+          Member
+        </button>
+      </div>
+
+      <form (ngSubmit)="login()" class="login-form">
+        <div class="field-wrap">
+          <ion-icon name="mail"></ion-icon>
+          <input
+            type="email"
+            [placeholder]="role() === 'admin' ? 'Admin Email' : 'Member Email'"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            name="email"
+            required
+          />
+        </div>
+
+        <div class="field-wrap">
+          <ion-icon name="lock-closed"></ion-icon>
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            [placeholder]="role() === 'admin' ? 'Admin Password' : 'Member Password'"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            name="password"
+            required
+          />
+          <button type="button" class="eye-btn" (click)="togglePasswordVisibility()" aria-label="Toggle password">
+            <ion-icon [name]="showPassword() ? 'eye-off' : 'eye'"></ion-icon>
+          </button>
+        </div>
+
+        <div class="meta-row">
+          <label class="remember-line">
+            <input type="checkbox" [ngModel]="rememberMe()" (ngModelChange)="rememberMe.set(!!$event)" name="rememberMe" />
+            Remember Me
+          </label>
+          <button type="button" class="text-btn" (click)="forgotPassword()">Forgot Password?</button>
+        </div>
+
+        <p class="error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+        <p class="info" *ngIf="infoMessage()">{{ infoMessage() }}</p>
+
+        <button type="submit" class="submit-btn" [disabled]="isLoading()">
+          <ion-spinner *ngIf="isLoading()" name="crescent"></ion-spinner>
+          <span *ngIf="!isLoading()">Login</span>
+        </button>
+
+        <button type="button" class="google-btn" (click)="loginWithGoogle()" [disabled]="isLoading()">
+          <ion-icon name="logo-google"></ion-icon>
+          Continue with Google
+        </button>
+
+        <div class="footer-row">
+          <button type="button" class="text-btn" (click)="backToRoleSelection()">Back</button>
+          <button type="button" class="text-btn" (click)="goToSignup()">Sign Up</button>
+        </div>
+      </form>
+    </article>
+  </section>
+</ion-content>

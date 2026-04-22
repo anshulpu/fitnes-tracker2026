@@ -1,0 +1,151 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="custom-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/workouts"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ workout()?.title || 'Workout' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="timer-content">
+  <div class="timer-container" *ngIf="workout() as w">
+    <!-- Workout Info -->
+    <div class="workout-info animate-fade-in">
+      <div class="category-badge" [class]="'gradient-' + w.category.toLowerCase()">
+        {{ w.category }}
+      </div>
+      <h1 class="workout-name">{{ w.title }}</h1>
+      <p class="workout-meta">{{ w.duration }} min • {{ w.difficulty }}</p>
+    </div>
+
+    <!-- Timer Display -->
+    <div class="timer-display animate-scale">
+      <div class="timer-circle" [class.running]="isRunning()">
+        <svg class="progress-ring" width="280" height="280">
+          <circle
+            class="progress-ring-bg"
+            cx="140"
+            cy="140"
+            r="130"
+          ></circle>
+          <circle
+            class="progress-ring-fill"
+            cx="140"
+            cy="140"
+            r="130"
+            [style.stroke-dashoffset]="816 - (816 * progress())"
+          ></circle>
+        </svg>
+        <div class="timer-content">
+          <div class="time-display">{{ displayTime() }}</div>
+          <div class="time-label">{{ isRunning() ? (isPaused() ? 'Paused' : 'In Progress') : 'Ready to Start' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div *ngIf="isRunning()" class="stats-row animate-fade-in">
+      <div class="stat-item">
+        <div class="stat-icon gradient-orange">
+          <ion-icon name="flame"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ estimatedCalories() }}</h3>
+          <p>Calories</p>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon gradient-blue">
+          <ion-icon name="time"></ion-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ (elapsedSeconds() / 60).toFixed(1) }}</h3>
+          <p>Minutes</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls" [class.started]="isRunning()">
+      <ng-container *ngIf="!isRunning(); else runningControls">
+        <ion-button
+          expand="block"
+          size="large"
+          class="control-button start-button"
+          (click)="startWorkout()"
+        >
+          <ion-icon slot="start" name="play"></ion-icon>
+          Start Workout
+        </ion-button>
+      </ng-container>
+      <ng-template #runningControls>
+        <div class="control-buttons">
+          <ng-container *ngIf="!isPaused(); else resumeButton">
+            <ion-button
+              expand="block"
+              size="large"
+              class="control-button pause-button"
+              (click)="pauseWorkout()"
+            >
+              <ion-icon slot="start" name="pause"></ion-icon>
+              Pause
+            </ion-button>
+          </ng-container>
+          <ng-template #resumeButton>
+            <ion-button
+              expand="block"
+              size="large"
+              class="control-button resume-button"
+              (click)="resumeWorkout()"
+            >
+              <ion-icon slot="start" name="play"></ion-icon>
+              Resume
+            </ion-button>
+          </ng-template>
+          <ion-button
+            expand="block"
+            size="large"
+            class="control-button stop-button"
+            (click)="stopWorkout()"
+          >
+            <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+            Complete
+          </ion-button>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Voice Trainer Controls -->
+    <div class="voice-trainer-banner">
+      <ion-button
+        size="small"
+        fill="outline"
+        (click)="toggleVoiceTrainer()"
+        [disabled]="voiceStatus() === 'unsupported'"
+      >
+        <ion-icon slot="start" name="mic"></ion-icon>
+        {{ voiceStatus() === 'listening' ? 'Listening…' : 'Voice Trainer' }}
+      </ion-button>
+      <p class="voice-hint" *ngIf="voiceStatus() !== 'unsupported' && lastHeard()">
+        Heard: "{{ lastHeard() }}"
+      </p>
+      <p class="voice-hint" *ngIf="voiceStatus() === 'unsupported'">
+        Voice control not supported in this browser.
+      </p>
+    </div>
+
+    <!-- Exercise List -->
+    <div *ngIf="w.exercises && w.exercises.length > 0" class="exercises-section animate-fade-in-delay">
+      <h3>Exercises</h3>
+      <div class="exercise-list">
+        <div *ngFor="let exercise of w.exercises; let i = index" class="exercise-item" [class.active]="i === currentExerciseIndex()">
+          <div class="exercise-name">{{ exercise.name }}</div>
+          <div class="exercise-details">
+            <span *ngIf="exercise.sets && exercise.reps">{{ exercise.sets }} sets × {{ exercise.reps }} reps</span>
+            <span *ngIf="exercise.duration">{{ exercise.duration }}s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

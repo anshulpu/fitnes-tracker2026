@@ -1,0 +1,49 @@
+<ion-content [fullscreen]="true" class="auth-shell">
+  <div class="bg-layer"></div>
+
+  <section class="signup-card">
+    <h1>Create FitTrack Account</h1>
+    <p>Set up your role-based access</p>
+
+    <div class="role-toggle">
+      <button type="button" [class.active]="role() === 'admin'" (click)="role.set('admin')">
+        <ion-icon name="shield-checkmark"></ion-icon>
+        Admin
+      </button>
+      <button type="button" [class.active]="role() === 'member'" (click)="role.set('member')">
+        <ion-icon name="person"></ion-icon>
+        Member
+      </button>
+    </div>
+
+    <form (ngSubmit)="signup()" class="signup-form">
+      <label>Full Name</label>
+      <div class="field-wrap">
+        <ion-icon name="person"></ion-icon>
+        <input type="text" [ngModel]="name()" (ngModelChange)="name.set($event)" name="name" required />
+      </div>
+
+      <label>Email</label>
+      <div class="field-wrap">
+        <ion-icon name="mail"></ion-icon>
+        <input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" required />
+      </div>
+
+      <label>Password</label>
+      <div class="field-wrap">
+        <ion-icon name="lock-closed"></ion-icon>
+        <input type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" required />
+      </div>
+
+      <p class="error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+      <p class="info" *ngIf="infoMessage()">{{ infoMessage() }}</p>
+
+      <button type="submit" class="submit-btn" [disabled]="isLoading()">
+        <ion-spinner *ngIf="isLoading()" name="crescent"></ion-spinner>
+        <span *ngIf="!isLoading()">Create Account</span>
+      </button>
+
+      <button type="button" class="text-btn" (click)="goToLogin()">Already have an account? Login</button>
+    </form>
+  </section>
+</ion-content>

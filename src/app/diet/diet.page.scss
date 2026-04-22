@@ -1,0 +1,525 @@
+.diet-content {
+  --background:
+    radial-gradient(circle at 10% 0%, rgba(129, 140, 248, 0.24), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(56, 189, 248, 0.2), transparent 34%),
+    linear-gradient(180deg, #eef2f7 0%, #e7ecf3 52%, #e9eef5 100%);
+}
+
+.custom-toolbar {
+  --background: rgba(245, 248, 253, 0.94);
+  --color: #111827;
+  backdrop-filter: blur(8px);
+}
+
+.content-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px 16px 104px;
+  display: grid;
+  gap: 16px;
+}
+
+.glass-card {
+  margin: 0;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(12px);
+  color: #1f2937;
+  padding: 18px;
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
+}
+
+.glass-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.16);
+}
+
+.gradient-primary {
+  background: linear-gradient(125deg, #7b7de9 0%, #5f97e4 52%, #55b8e9 100%);
+  color: #f8fafc;
+}
+
+.animate-fade {
+  animation: fadeIn 0.55s ease-out both;
+}
+
+.smart-suggestion-head,
+.section-head,
+.summary-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-wrap ion-icon {
+  font-size: 20px;
+  color: #4f8adf;
+}
+
+.gradient-primary .title-wrap ion-icon {
+  color: #f8fafc;
+}
+
+.smart-suggestion-head h2,
+.section-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.chip {
+  font-size: 0.76rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(248, 250, 252, 0.35);
+  border: 1px solid rgba(248, 250, 252, 0.52);
+  color: #ffffff;
+}
+
+.calorie-info h2 {
+  margin: 0;
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.calorie-info p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.streak-badge {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: #ffe7a3;
+  background: rgba(251, 146, 60, 0.18);
+  border: 1px solid rgba(251, 146, 60, 0.4);
+}
+
+.calorie-chart {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.chart-bg {
+  fill: none;
+  stroke: rgba(148, 163, 184, 0.45);
+  stroke-width: 8;
+}
+
+.chart-fill {
+  fill: none;
+  stroke: #34d399;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 0.45s ease;
+}
+
+.chart-percentage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.calorie-progress,
+.protein-progress,
+.water-progress {
+  --background: rgba(100, 116, 139, 0.4);
+  --progress-background: linear-gradient(90deg, #34d399, #60a5fa);
+  border-radius: 999px;
+  height: 8px;
+}
+
+.macro-progress {
+  margin-top: 14px;
+}
+
+.macro-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #475569;
+  font-size: 0.82rem;
+}
+
+.goal-selector {
+  margin-top: 16px;
+}
+
+.goal-selector p {
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.goal-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.goal-btn {
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(241, 245, 249, 0.96);
+  color: #475569;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.goal-btn.active {
+  border-color: rgba(52, 211, 153, 0.8);
+  color: #0f172a;
+  background: linear-gradient(135deg, rgba(134, 239, 172, 0.6), rgba(125, 211, 252, 0.55));
+}
+
+.analytics-card {
+  padding-bottom: 14px;
+}
+
+.chart-wrap {
+  margin-top: 12px;
+  height: 220px;
+}
+
+.two-col-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.water-controls {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.water-count {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.history-cta p {
+  margin: 12px 0;
+  color: #64748b;
+}
+
+.history-btn {
+  --background: linear-gradient(135deg, #22d3ee, #34d399);
+  --border-radius: 12px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.meals-section {
+  display: grid;
+  gap: 14px;
+}
+
+.meal-card {
+  padding: 16px;
+}
+
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.meal-title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.meal-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.meal-icon ion-icon {
+  color: #fff;
+  font-size: 22px;
+}
+
+.gradient-breakfast { background: linear-gradient(135deg, #f97316, #fb7185); }
+.gradient-lunch { background: linear-gradient(135deg, #0ea5e9, #6366f1); }
+.gradient-snacks { background: linear-gradient(135deg, #10b981, #22d3ee); }
+.gradient-dinner { background: linear-gradient(135deg, #f59e0b, #fb7185); }
+
+.meal-title-section h3 {
+  margin: 0;
+  font-size: 1.06rem;
+  color: #0f172a;
+}
+
+.meal-time {
+  margin: 2px 0 0;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.meal-calories {
+  text-align: right;
+}
+
+.calories-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.calories-label {
+  margin-left: 4px;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.meal-items {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.meal-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  border-radius: 12px;
+  padding: 10px;
+  background: #f4f7fb;
+  border: 1px solid #dbe4f0;
+}
+
+.item-name {
+  display: block;
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.item-macros {
+  display: flex;
+  gap: 10px;
+  color: #64748b;
+  font-size: 0.76rem;
+}
+
+.item-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.item-calories {
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 0.85rem;
+}
+
+.delete-button {
+  --color: #fda4af;
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 18px 8px;
+  color: #64748b;
+  text-align: center;
+}
+
+.empty-state ion-icon {
+  font-size: 26px;
+  color: #60a5fa;
+}
+
+.add-item-button {
+  --border-color: rgba(148, 163, 184, 0.55);
+  --color: #334155;
+  --border-radius: 12px;
+  text-transform: none;
+  font-weight: 600;
+}
+
+.custom-fab {
+  --background: linear-gradient(135deg, #22d3ee, #34d399);
+  --box-shadow: 0 12px 28px rgba(34, 211, 238, 0.36);
+}
+
+.modal-toolbar {
+  --background: linear-gradient(135deg, #0ea5e9, #10b981);
+  --color: #ecfeff;
+}
+
+.modal-content {
+  --background: #eef3f8;
+}
+
+.modal-form {
+  padding: 18px;
+}
+
+.form-list,
+.history-list {
+  border-radius: 16px;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+}
+
+.form-list ion-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 10px;
+}
+
+.form-list ion-input {
+  --background: #f8fafc;
+  --padding-start: 10px;
+  --padding-end: 10px;
+  border: 1px solid #d7e0ec;
+  border-radius: 10px;
+}
+
+.macros-section h4 {
+  margin: 0 0 10px;
+  font-size: 0.94rem;
+  color: #0f172a;
+}
+
+.macros-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.calculate-button,
+.add-button {
+  --border-radius: 12px;
+  text-transform: none;
+  font-weight: 700;
+}
+
+.calculate-button {
+  margin-top: 8px;
+  --border-color: rgba(56, 189, 248, 0.8);
+  --color: #7dd3fc;
+}
+
+.add-button {
+  --background: linear-gradient(135deg, #22d3ee, #34d399);
+}
+
+.history-item {
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #d7e0ec;
+  background: #f8fafd;
+}
+
+.history-item + .history-item {
+  margin-top: 8px;
+}
+
+.history-date {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.history-meta {
+  margin-top: 6px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.success {
+  color: #34d399;
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .two-col-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .content-wrapper {
+    padding: 12px 10px 96px;
+  }
+
+  .calorie-info h2 {
+    font-size: 1.9rem;
+  }
+
+  .calorie-chart {
+    width: 86px;
+    height: 86px;
+  }
+
+  .summary-content {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .macros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .meal-item {
+    align-items: flex-start;
+  }
+
+  .item-actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}

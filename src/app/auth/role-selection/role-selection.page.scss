@@ -1,0 +1,192 @@
+.auth-shell {
+  --background: linear-gradient(160deg, #7745b6 0%, #9a62ca 55%, #b67ad8 100%);
+}
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 16%, rgba(255, 255, 255, 0.16), transparent 22%),
+    radial-gradient(circle at 85% 8%, rgba(255, 255, 255, 0.12), transparent 22%),
+    linear-gradient(170deg, rgba(93, 46, 160, 0.6), rgba(182, 122, 216, 0.24));
+  animation: bgDrift 18s ease-in-out infinite alternate;
+}
+
+@keyframes bgDrift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-14px); }
+}
+
+.auth-layout {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+  margin: 2vh auto 4vh;
+  padding: 8px 14px 18px;
+}
+
+.brand-head {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.brand-icon-wrap {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 8px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+}
+
+.brand-icon-wrap ion-icon {
+  font-size: 48px;
+  color: #ffffff;
+  filter: drop-shadow(0 8px 16px rgba(25, 11, 45, 0.3));
+}
+
+.role-card {
+  border-radius: 30px;
+  padding: 28px 22px;
+  background: rgba(245, 245, 247, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 28px 56px rgba(46, 23, 74, 0.33);
+  text-align: center;
+  animation: cardIn 0.55s ease;
+}
+
+.role-logo-wrap {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 14px;
+  border-radius: 20px;
+  background: #0b0b0f;
+  border: 3px solid rgba(255, 61, 92, 0.58);
+  overflow: hidden;
+  box-shadow: 0 14px 32px rgba(188, 22, 50, 0.35);
+}
+
+.role-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+h1 {
+  margin: 0;
+  font-size: 3rem;
+  line-height: 1;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+p {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.role-card h2 {
+  margin: 0;
+  color: #1f222b;
+  font-size: 2.35rem;
+  font-weight: 800;
+}
+
+.card-subtitle {
+  margin: 8px 0 14px;
+  color: #616773;
+  font-size: 1.1rem;
+}
+
+.label {
+  margin: 0 0 8px;
+  text-align: left;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2d3454;
+}
+
+.role-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.role-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 14px 14px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.role-btn.admin {
+  background: linear-gradient(135deg, #5f73e1, #724eb6);
+  color: #eefeff;
+}
+
+.role-btn.member {
+  background: linear-gradient(135deg, #5878d6, #425db8);
+  color: #f3f9ff;
+}
+
+.role-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(98, 74, 170, 0.32);
+}
+
+.text-btn {
+  margin-top: 16px;
+  border: none;
+  background: transparent;
+  color: #5567cb;
+  font-weight: 700;
+  font-size: 0.94rem;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .auth-layout {
+    margin-top: 2vh;
+  }
+
+  h1 {
+    font-size: 2.3rem;
+  }
+
+  p {
+    font-size: 1.05rem;
+  }
+
+  .role-card {
+    padding: 22px 16px;
+    border-radius: 24px;
+  }
+
+  .role-logo-wrap {
+    width: 132px;
+    height: 132px;
+    margin-bottom: 12px;
+  }
+
+  .role-card h2 {
+    font-size: 1.95rem;
+  }
+
+  .card-subtitle {
+    font-size: 1rem;
+  }
+}

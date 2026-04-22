@@ -1,0 +1,135 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="custom-toolbar">
+    <ion-title>Workouts</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="workouts-content">
+  <div class="content-wrapper">
+    <div class="voice-trainer-banner">
+      <ion-button
+        size="small"
+        fill="outline"
+        (click)="toggleVoiceTrainer()"
+        [disabled]="voiceStatus() === 'unsupported'"
+      >
+        <ion-icon slot="start" name="mic"></ion-icon>
+        {{ voiceStatus() === 'listening' ? 'Listening…' : 'Voice Trainer' }}
+      </ion-button>
+      <p class="voice-hint" *ngIf="voiceStatus() !== 'unsupported'">
+        Say "Start chest workout" to begin hands-free.
+      </p>
+      <p class="voice-hint" *ngIf="voiceStatus() === 'unsupported'">
+        Voice control not supported in this browser.
+      </p>
+    </div>
+
+    <div class="accountability-banner">
+      <p class="accountability-text">
+        Feeling lazy today? Tap below and your accountability buddy gets notified 📣
+      </p>
+      <ion-button
+        size="small"
+        color="danger"
+        fill="outline"
+        class="skip-button"
+        (click)="skipToday()"
+      >
+        I’m Skipping Today
+      </ion-button>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="category-section">
+      <h3 class="section-title">Categories</h3>
+      <div class="category-chips">
+        <ion-chip 
+          [class.active]="selectedCategory() === 'All'"
+          (click)="selectCategory('All')"
+          class="category-chip"
+        >
+          <ion-icon name="fitness"></ion-icon>
+          <ion-label>All</ion-label>
+        </ion-chip>
+        <ng-container *ngFor="let category of categories">
+          <ion-chip 
+            [class.active]="selectedCategory() === category"
+            (click)="selectCategory(category)"
+            class="category-chip"
+          >
+            <ion-icon [name]="getCategoryIcon(category)"></ion-icon>
+            <ion-label>{{ category }}</ion-label>
+          </ion-chip>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Workouts List -->
+    <div class="workouts-section">
+      <h3 class="section-title">
+        {{ selectedCategory() === 'All' ? 'All Workouts' : selectedCategory() + ' Workouts' }}
+        <span class="count">({{ filteredWorkouts().length }})</span>
+      </h3>
+
+      <ng-container *ngIf="filteredWorkouts().length; else emptyWorkouts">
+        <div class="workouts-grid">
+          <div *ngFor="let workout of filteredWorkouts()" class="workout-card animate-fade-in">
+            <div class="workout-header" [class]="'gradient-' + workout.category.toLowerCase()">
+              <div class="workout-icon">
+                <ion-icon [name]="getCategoryIcon(workout.category)"></ion-icon>
+              </div>
+              <ion-chip 
+                [color]="getDifficultyColor(workout.difficulty)" 
+                class="difficulty-chip"
+              >
+                {{ workout.difficulty }}
+              </ion-chip>
+            </div>
+
+            <div class="workout-content">
+              <h4 class="workout-title">{{ workout.title }}</h4>
+              <p class="workout-description">{{ workout.description }}</p>
+
+              <div class="workout-stats">
+                <div class="stat">
+                  <ion-icon name="time"></ion-icon>
+                  <span>{{ workout.duration }} min</span>
+                </div>
+                <div class="stat">
+                  <ion-icon name="flame"></ion-icon>
+                  <span>{{ workout.duration * workout.caloriesPerMinute }} cal</span>
+                </div>
+              </div>
+
+              <!-- Exercises Preview -->
+              <div *ngIf="workout.exercises && workout.exercises.length > 0" class="exercises-preview">
+                <p class="preview-title">Exercises:</p>
+                <ul class="exercise-list">
+                  <li *ngFor="let exercise of workout.exercises.slice(0,3)">{{ exercise.name }}</li>
+                  <li *ngIf="workout.exercises.length > 3" class="more">+{{ workout.exercises.length - 3 }} more</li>
+                </ul>
+              </div>
+
+              <ion-button 
+                expand="block" 
+                (click)="startWorkout(workout.id)"
+                class="start-button"
+              >
+                <ion-icon slot="start" name="play"></ion-icon>
+                Start Workout
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #emptyWorkouts>
+          <div class="empty-state">
+            <ion-icon name="fitness"></ion-icon>
+            <h3>No workouts found</h3>
+            <p>Try selecting a different category</p>
+          </div>
+        </ng-template>
+      
+    </div>
+  </div>
+</ion-content>

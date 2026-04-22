@@ -1,0 +1,216 @@
+.custom-toolbar {
+  --background: rgba(255, 255, 255, 0.92);
+  --color: #0f172a;
+}
+
+.ai-coach-content {
+  --background: transparent;
+}
+
+.content-wrapper {
+  padding: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.coach-hero-card,
+.coach-detail-card {
+  margin: 0 0 14px 0;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.coach-hero-card {
+  background: linear-gradient(135deg, #5ec7f5 0%, #9edb63 100%);
+  color: #ffffff;
+}
+
+.hero-label {
+  margin: 0 0 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+}
+
+.hero-title {
+  margin: 0;
+  font-size: 24px;
+}
+
+.hero-summary {
+  margin: 8px 0 0;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.status-chip,
+.fatigue-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.status-chip.under-recovered {
+  background: rgba(220, 38, 38, 0.2);
+}
+
+.status-chip.balanced {
+  background: rgba(30, 64, 175, 0.2);
+}
+
+.status-chip.fresh {
+  background: rgba(21, 128, 61, 0.22);
+}
+
+.hero-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hero-actions ion-button {
+  --background: rgba(15, 23, 42, 0.2);
+  --border-color: rgba(15, 23, 42, 0.3);
+  --color: #ffffff;
+}
+
+.coach-detail-card {
+  background: #ffffff;
+}
+
+.goal-block {
+  margin-bottom: 8px;
+}
+
+.goal-message {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.goal-meta {
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.overtraining-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 99, 132, 0.12);
+  color: #b71c1c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fatigue-history {
+  margin-top: 12px;
+}
+
+.fatigue-history-header {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.fatigue-history-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.fatigue-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.fatigue-bar-inner {
+  width: 100%;
+  max-width: 18px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #5ec7f5 0%, #2ba6de 100%);
+}
+
+.fatigue-bar-inner.risk {
+  background: linear-gradient(180deg, #ff6b6b 0%, #c62828 100%);
+}
+
+.fatigue-bar-label {
+  font-size: 10px;
+  color: #777;
+}
+
+.fatigue-history-empty {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.sleep-input-item {
+  --background: transparent;
+  margin-top: 12px;
+  border-radius: 12px;
+  --padding-start: 0;
+}
+
+.coach-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.coach-cell {
+  border-radius: 12px;
+  background: #f5f8ff;
+  padding: 10px;
+}
+
+.coach-cell p {
+  margin: 0;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.coach-cell strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.notes {
+  margin: 10px 0 2px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+@media (max-width: 620px) {
+  .coach-grid {
+    grid-template-columns: 1fr;
+  }
+}

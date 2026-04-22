@@ -1,0 +1,263 @@
+.auth-shell {
+  --background: linear-gradient(160deg, #7745b6 0%, #9a62ca 55%, #b67ad8 100%);
+}
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 16%, rgba(255, 255, 255, 0.16), transparent 22%),
+    radial-gradient(circle at 85% 8%, rgba(255, 255, 255, 0.12), transparent 22%),
+    linear-gradient(170deg, rgba(93, 46, 160, 0.6), rgba(182, 122, 216, 0.24));
+  animation: drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-14px); }
+}
+
+.auth-layout {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  margin: 2vh auto 4vh;
+  padding: 8px 14px 18px;
+}
+
+.brand-head {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.brand-icon-wrap {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 8px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+}
+
+.brand-icon-wrap ion-icon {
+  font-size: 48px;
+  color: #ffffff;
+  filter: drop-shadow(0 8px 16px rgba(25, 11, 45, 0.3));
+}
+
+.brand-head h1 {
+  margin: 0;
+  font-size: 3rem;
+  line-height: 1;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.brand-head p {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.login-card {
+  border-radius: 30px;
+  padding: 28px 22px;
+  background: rgba(245, 245, 247, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 28px 56px rgba(46, 23, 74, 0.33);
+  animation: cardIn 0.55s ease;
+  text-align: center;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-card h2 {
+  margin: 0;
+  color: #1f222b;
+  font-size: 2.8rem;
+  font-weight: 800;
+}
+
+.card-subtitle {
+  margin: 8px 0 14px;
+  color: #616773;
+  font-size: 1.35rem;
+}
+
+.label {
+  margin: 0 0 8px;
+  text-align: left;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2d3454;
+}
+
+.role-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.role-toggle button {
+  border: 1px solid rgba(104, 94, 168, 0.24);
+  border-radius: 14px;
+  padding: 11px;
+  background: #ffffff;
+  color: #353c5a;
+  font-weight: 700;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-toggle button.active {
+  background: linear-gradient(135deg, #6074dd, #7350b8);
+  color: #f4fdff;
+  box-shadow: 0 10px 24px rgba(98, 74, 170, 0.32);
+}
+
+.login-form {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.field-wrap {
+  border: 1px solid rgba(141, 145, 170, 0.16);
+  border-radius: 14px;
+  background: #ececef;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.field-wrap ion-icon {
+  color: #6775d6;
+  font-size: 1.1rem;
+}
+
+.field-wrap input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 13px 9px;
+  outline: none;
+  color: #23293d;
+  font-size: 1rem;
+}
+
+.eye-btn {
+  border: none;
+  background: transparent;
+  color: #606dc9;
+  cursor: pointer;
+}
+
+.meta-row {
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.remember-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: #43496b;
+}
+
+.text-btn {
+  border: none;
+  background: transparent;
+  color: #5567cb;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+.error,
+.info {
+  margin: 3px 0;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.error { color: #b12623; }
+.info { color: #137458; }
+
+.submit-btn,
+.google-btn {
+  margin-top: 6px;
+  border: none;
+  border-radius: 14px;
+  min-height: 52px;
+  cursor: pointer;
+  font-weight: 700;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #5f73e1, #724eb6);
+  color: #effeff;
+  font-size: 1.05rem;
+}
+
+.google-btn {
+  background: #ffffff;
+  border: 1px solid rgba(96, 101, 134, 0.2);
+  color: #3c4157;
+}
+
+.footer-row {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+@media (max-width: 520px) {
+  .auth-layout {
+    margin-top: 2vh;
+  }
+
+  .brand-head h1 {
+    font-size: 2.3rem;
+  }
+
+  .brand-head p {
+    font-size: 1.05rem;
+  }
+
+  .login-card {
+    margin: 0;
+    padding: 22px 16px;
+    border-radius: 24px;
+  }
+
+  .login-card h2 {
+    font-size: 2.1rem;
+  }
+
+  .card-subtitle {
+    font-size: 1.05rem;
+  }
+
+  .footer-row,
+  .meta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

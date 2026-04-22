@@ -1,0 +1,262 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="custom-toolbar">
+    <ion-title>
+      <div class="header-content">
+        <div>
+          <p class="hello-line">Hello, {{ user()?.name || 'Athlete' }}</p>
+          <p class="date-line">{{ today | date: 'd MMM' }}</p>
+        </div>
+        <div class="avatar-pill">{{ (user()?.name || 'A').charAt(0).toUpperCase() }}</div>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="dashboard-content">
+  <div class="content-wrapper" *ngIf="todayActivity() as activity">
+    <div class="daily-challenge-card">
+      <div class="daily-challenge-copy">
+        <p class="challenge-label">Daily challenge</p>
+        <h2>Do your plan before {{ today | date: 'hh:mm a' }}</h2>
+      </div>
+      <div class="challenge-orbs">
+        <span class="orb orb-a"></span>
+        <span class="orb orb-b"></span>
+        <span class="orb orb-c"></span>
+      </div>
+    </div>
+
+    <div class="week-strip" *ngIf="weeklyProgress() as progress">
+      <button
+        class="week-pill"
+        *ngFor="let day of progress.days; let isLast = last"
+        [class.active]="isLast"
+        type="button"
+      >
+        <span>{{ getWeekDayLabel(day.date) }}</span>
+        <strong>{{ day.date | date: 'dd' }}</strong>
+      </button>
+    </div>
+
+    <div class="section-header compact">
+      <h3>Your plan</h3>
+      <ion-text color="medium">Tailored for today</ion-text>
+    </div>
+
+    <div class="plan-preview-grid">
+      <div class="plan-preview-card warm" (click)="navigateTo('/tabs/workouts')">
+        <p class="plan-level">Medium</p>
+        <h4>workout plans</h4>
+        <p>14:00 - 15:00</p>
+      </div>
+      <div class="plan-preview-card cool" (click)="navigateTo('/tabs/diet')">
+        <p class="plan-level">Light</p>
+        <h4>Balance Meal</h4>
+        <p>Fuel your evening</p>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="section-header" *ngIf="notifications() as notifList">
+      <h3>Notifications</h3>
+      <ion-text color="medium" *ngIf="notifList.length === 0">You're all caught up for today.</ion-text>
+      <ion-text color="medium" *ngIf="notifList.length > 0">Smart reminders based on your activity</ion-text>
+    </div>
+
+    <ion-card class="notifications-card" *ngIf="notifications().length > 0">
+      <ion-card-content>
+        <div class="notification-item" *ngFor="let n of notifications() | slice:0:3">
+          <div class="notification-dot" [ngClass]="n.type"></div>
+          <div class="notification-text">
+            <p class="notification-title">{{ n.title }}</p>
+            <p class="notification-message">{{ n.message }}</p>
+            <p class="notification-meta">{{ n.createdAt | date: 'shortTime' }}</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Achievements -->
+    <div class="section-header" *ngIf="achievements() as badges">
+      <h3>Achievements</h3>
+      <ion-text color="medium">Gamified badges that track your progress</ion-text>
+    </div>
+
+    <div class="achievements-row" *ngIf="achievements().length > 0">
+      <div
+        class="badge-card"
+        *ngFor="let badge of achievements()"
+        [class.earned]="badge.earned"
+      >
+        <div class="badge-icon" [class.locked]="!badge.earned">
+          <span *ngIf="badge.id === 'first_workout'">🏅</span>
+          <span *ngIf="badge.id === 'streak_7_days'">🔥</span>
+          <span *ngIf="badge.id === 'calories_1000'">⚡</span>
+        </div>
+        <div class="badge-text">
+          <p class="badge-title">{{ badge.title }}</p>
+          <p class="badge-desc">{{ badge.description }}</p>
+          <p class="badge-meta" *ngIf="badge.earned && badge.earnedAt">
+            Earned {{ badge.earnedAt | date: 'mediumDate' }}
+          </p>
+          <p class="badge-meta" *ngIf="!badge.earned">
+            Locked
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Activity Summary -->
+    <div class="section-header">
+      <h3>Today's Activity</h3>
+      <ion-text color="medium">{{ activity.workoutsCompleted }} workouts</ion-text>
+    </div>
+
+    <!-- Activity Cards -->
+    <ion-grid class="activity-grid">
+      <ion-row>
+        <ion-col size="6">
+          <div class="stat-card gradient-purple animate-scale">
+            <div class="stat-icon-wrapper">
+              <ion-icon name="walk"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <h2 class="stat-value">{{ activity.steps.toLocaleString() }}</h2>
+              <p class="stat-label">Steps</p>
+              <ion-progress-bar 
+                [value]="stepProgress()" 
+                class="custom-progress"
+              ></ion-progress-bar>
+              <p class="stat-goal">Goal: {{ (user()?.dailyStepGoal || 10000).toLocaleString() }}</p>
+            </div>
+          </div>
+        </ion-col>
+
+        <ion-col size="6">
+          <div class="stat-card gradient-orange animate-scale delay-1">
+            <div class="stat-icon-wrapper">
+              <ion-icon name="flame"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <h2 class="stat-value">{{ activity.caloriesBurned }}</h2>
+              <p class="stat-label">Calories</p>
+              <ion-progress-bar 
+                [value]="calorieProgress()" 
+                class="custom-progress"
+              ></ion-progress-bar>
+              <p class="stat-goal">Goal: {{ user()?.dailyCalorieGoal || 2000 }}</p>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col size="12">
+          <div class="stat-card gradient-green animate-scale delay-2">
+            <div class="stat-row">
+              <div class="stat-item">
+                <ion-icon name="time"></ion-icon>
+                <div>
+                  <h3>{{ activity.activeMinutes }}</h3>
+                  <p>Active Minutes</p>
+                </div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <ion-icon name="trending-up"></ion-icon>
+                <div>
+                  <h3>{{ (weeklyProgress()?.totalSteps ?? 0) | number }}</h3>
+                  <p>Weekly Steps</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Weekly Progress -->
+    <div class="section-header">
+      <h3>Weekly Progress</h3>
+      <ion-text color="medium">Last 7 days</ion-text>
+    </div>
+
+    <div class="weekly-chart animate-fade-in" *ngIf="weeklyProgress() as progress">
+      <div class="chart-container">
+        <div class="chart-bar" *ngFor="let day of progress.days">
+          <div class="bar-wrapper">
+            <div 
+              class="bar"
+              [style.height.%]="getBarHeight(day.steps)"
+            >
+              <span class="bar-value">{{ (day.steps / 1000).toFixed(1) }}k</span>
+            </div>
+          </div>
+          <span class="bar-label">{{ getWeekDayLabel(day.date) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="section-header">
+      <h3>Quick Access</h3>
+    </div>
+
+    <div class="quick-nav animate-fade-in">
+      <div class="nav-card gradient-blue" (click)="navigateTo('/tabs/workouts')">
+        <div class="nav-icon">
+          <ion-icon name="fitness"></ion-icon>
+        </div>
+        <div class="nav-content">
+          <h4>Workouts</h4>
+          <p>Start your training</p>
+        </div>
+        <ion-icon name="chevron-forward" class="nav-arrow"></ion-icon>
+      </div>
+
+      <div class="nav-card gradient-pink" (click)="navigateTo('/tabs/diet')">
+        <div class="nav-icon">
+          <ion-icon name="nutrition"></ion-icon>
+        </div>
+        <div class="nav-content">
+          <h4>Diet Plan</h4>
+          <p>Track your meals</p>
+        </div>
+        <ion-icon name="chevron-forward" class="nav-arrow"></ion-icon>
+      </div>
+
+      <div class="nav-card gradient-teal" (click)="navigateTo('/tabs/analytics')">
+        <div class="nav-icon">
+          <ion-icon name="bar-chart"></ion-icon>
+        </div>
+        <div class="nav-content">
+          <h4>Analytics</h4>
+          <p>View detailed stats</p>
+        </div>
+        <ion-icon name="chevron-forward" class="nav-arrow"></ion-icon>
+      </div>
+
+      <div class="nav-card gradient-purple" (click)="navigateTo('/tabs/ai-coach')">
+        <div class="nav-icon">
+          <ion-icon name="trophy"></ion-icon>
+        </div>
+        <div class="nav-content">
+          <h4>AI Coach</h4>
+          <p>Jump to today's guidance</p>
+        </div>
+        <ion-icon name="chevron-forward" class="nav-arrow"></ion-icon>
+      </div>
+
+      <div class="nav-card gradient-green" (click)="navigateTo('/tabs/form-checker')">
+        <div class="nav-icon">
+          <ion-icon name="walk"></ion-icon>
+        </div>
+        <div class="nav-content">
+          <h4>Form Checker</h4>
+          <p>Check your posture with camera</p>
+        </div>
+        <ion-icon name="chevron-forward" class="nav-arrow"></ion-icon>
+      </div>
+    </div>
+  </div>
+</ion-content>

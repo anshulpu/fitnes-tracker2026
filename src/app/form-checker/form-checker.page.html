@@ -1,0 +1,174 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="custom-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/workouts"></ion-back-button>
+    </ion-buttons>
+    <ion-title>AI Form Checker</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="form-checker-content">
+  <div class="content-wrapper">
+    <ion-card class="glass-card info-card animate-fade-in">
+      <ion-card-content>
+        <h2>
+          <ion-icon name="analytics"></ion-icon>
+          Smart Posture Detection
+        </h2>
+        <p>
+          Select an exercise mode, stand inside the guide box, and keep your torso visible.
+          The AI uses smoothed MoveNet signals for stable posture scoring.
+        </p>
+
+        <div class="top-controls">
+          <label class="select-wrap">
+            <ion-icon name="body"></ion-icon>
+            <select [value]="exerciseMode()" (change)="setExerciseMode($any($event.target).value)">
+              <option value="standing">Standing posture</option>
+              <option value="squat">Squat</option>
+              <option value="deadlift">Deadlift</option>
+            </select>
+          </label>
+
+          <div class="toggle-group">
+            <ion-button fill="clear" size="small" (click)="toggleDebug()">
+              <ion-icon slot="start" name="bug"></ion-icon>
+              {{ showDebug() ? 'Debug On' : 'Debug Off' }}
+            </ion-button>
+            <ion-button fill="clear" size="small" (click)="toggleSound()">
+              <ion-icon slot="start" [name]="soundEnabled() ? 'volume-high' : 'volume-mute'"></ion-icon>
+              {{ soundEnabled() ? 'Sound On' : 'Sound Off' }}
+            </ion-button>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="video-wrapper animate-scale">
+      <ion-card class="glass-card metrics-card">
+        <div class="score-ring" [class.good]="postureGood() === true" [class.bad]="postureGood() === false">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+            <circle
+              class="ring-fill"
+              cx="60"
+              cy="60"
+              r="52"
+              [style.stroke-dashoffset]="327 - (327 * postureScore()) / 100"
+            ></circle>
+          </svg>
+          <div class="ring-center">
+            <span class="score-value">{{ postureScore() }}</span>
+            <small>score</small>
+          </div>
+        </div>
+
+        <div class="metric-list">
+          <div class="metric-item">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <div>
+              <span>Confidence</span>
+              <strong>{{ confidenceLevel() }}%</strong>
+            </div>
+          </div>
+          <div class="metric-item">
+            <ion-icon name="stopwatch"></ion-icon>
+            <div>
+              <span>Session</span>
+              <strong>{{ getSessionTimerLabel() }}</strong>
+            </div>
+          </div>
+        </div>
+      </ion-card>
+
+      <div class="video-container">
+        <video #video playsinline muted></video>
+        <canvas #overlay></canvas>
+        <div class="overlay-label">Align your back</div>
+
+        <div class="status-dot" [class.good]="postureGood() === true" [class.bad]="postureGood() === false" [class.active]="isCameraActive()"></div>
+      </div>
+
+      <div class="controls">
+        <ion-button
+          expand="block"
+          class="primary-button"
+          (click)="startChecking()"
+          [disabled]="isCameraActive() || isLoadingModel() || isPreparingCamera()"
+        >
+          <ion-icon slot="start" name="play"></ion-icon>
+          {{ isLoadingModel() || isPreparingCamera() ? 'Preparing camera + model…' : 'Start Form Check' }}
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="secondary-button"
+          (click)="restart()"
+          [disabled]="!isCameraActive()"
+        >
+          <ion-icon slot="start" name="refresh"></ion-icon>
+          Restart
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="clear"
+          class="secondary-button"
+          (click)="stopChecking()"
+          [disabled]="!isCameraActive()"
+        >
+          <ion-icon slot="start" name="stop"></ion-icon>
+          Stop Camera
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="secondary-button"
+          (click)="captureScreenshot()"
+          [disabled]="!isCameraActive()"
+        >
+          <ion-icon slot="start" name="camera"></ion-icon>
+          Capture Screenshot
+        </ion-button>
+      </div>
+
+      <div class="status-row" *ngIf="isLoadingModel() || isPreparingCamera()">
+        <ion-spinner name="crescent"></ion-spinner>
+        <span>{{ isPreparingCamera() ? 'Starting camera…' : 'Loading AI model…' }}</span>
+      </div>
+    </div>
+
+    <div class="feedback-section animate-fade-in-delay" *ngIf="feedbackMessage() as msg">
+      <div
+        class="feedback-chip"
+        [class.good]="postureGood() === true"
+        [class.bad]="postureGood() === false"
+      >
+        <ion-icon
+          *ngIf="postureGood() === true"
+          name="checkmark-circle"
+          class="good-icon"
+        ></ion-icon>
+        <ion-icon
+          *ngIf="postureGood() === false"
+          name="warning"
+          class="bad-icon"
+        ></ion-icon>
+        <span>{{ msg }}</span>
+      </div>
+
+      <p class="debug-text" *ngIf="debugInfo() as dbg">
+        {{ dbg }}
+      </p>
+    </div>
+
+    <ion-card class="glass-card screenshot-card" *ngIf="screenshotDataUrl() as shot">
+      <ion-card-content>
+        <h3>Last Capture</h3>
+        <img [src]="shot" alt="Posture screenshot" />
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

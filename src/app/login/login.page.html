@@ -1,0 +1,154 @@
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-container">
+    <!-- Animated Background -->
+    <div class="gradient-bg"></div>
+    
+    <!-- Hero Section -->
+    <div class="hero-section animate-fade-in">
+      <div class="logo-container">
+        <ion-icon name="fitness" class="hero-icon"></ion-icon>
+      </div>
+      <h1 class="app-title">Fit-Pro</h1>
+      <p class="app-subtitle">Your Personal Fitness Companion</p>
+    </div>
+
+    <!-- Login/Signup Form -->
+    <div class="form-container animate-slide-up">
+      <div class="form-card">
+        <h2 class="form-title">{{ isSignupMode() ? 'Create Account' : 'Welcome Back' }}</h2>
+        <p class="form-subtitle">{{ isSignupMode() ? 'Start your fitness journey today' : 'Sign in to continue' }}</p>
+
+        <form (ngSubmit)="handleSubmit()" class="login-form">
+          <!-- Name Input (Signup only) -->
+          <div class="input-group" *ngIf="isSignupMode()">
+            <ion-icon name="person" class="input-icon"></ion-icon>
+            <ion-input
+              type="text"
+              placeholder="Full Name"
+              [(ngModel)]="name"
+              name="name"
+              class="custom-input"
+            ></ion-input>
+          </div>
+
+          <!-- Role Selection (Signup only) -->
+          <div class="role-group" *ngIf="isSignupMode()">
+            <p class="role-label">Select role</p>
+            <div class="role-options">
+              <button
+                type="button"
+                class="role-option"
+                [class.active]="role === 'member'"
+                (click)="role = 'member'"
+              >
+                Member
+              </button>
+              <button
+                type="button"
+                class="role-option"
+                [class.active]="role === 'admin'"
+                (click)="role = 'admin'"
+              >
+                Admin
+              </button>
+            </div>
+          </div>
+
+          <!-- Email Input -->
+          <div class="input-group">
+            <ion-icon name="mail" class="input-icon"></ion-icon>
+            <ion-input
+              type="email"
+              placeholder="Email"
+              [(ngModel)]="email"
+              name="email"
+              class="custom-input"
+            ></ion-input>
+          </div>
+
+          <!-- Password Input -->
+          <div class="input-group">
+            <ion-icon name="lock-closed" class="input-icon"></ion-icon>
+            <ion-input
+              type="password"
+              placeholder="Password"
+              [(ngModel)]="password"
+              name="password"
+              class="custom-input"
+            ></ion-input>
+          </div>
+
+          <!-- Forgot Password -->
+          <div class="forgot-password" (click)="forgotPassword()">
+            <span>Forgot password?</span>
+          </div>
+
+          <!-- Error Message -->
+          <ion-text *ngIf="errorMessage()" color="danger" class="error-message">
+            <p>{{ errorMessage() }}</p>
+          </ion-text>
+
+          <!-- Info Message -->
+          <ion-text *ngIf="infoMessage()" color="primary" class="info-message">
+            <p>{{ infoMessage() }}</p>
+          </ion-text>
+
+          <!-- Submit Button -->
+          <ion-button
+            expand="block"
+            type="submit"
+            class="submit-button"
+            [disabled]="isLoading()"
+          >
+            <ion-spinner *ngIf="isLoading()" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading()">{{ isSignupMode() ? 'Sign Up' : 'Sign In' }}</span>
+          </ion-button>
+
+          <!-- Toggle Mode -->
+          <div class="toggle-mode">
+            <p>
+              {{ isSignupMode() ? 'Already have an account?' : "Don't have an account?" }}
+              <span class="link-text" (click)="toggleMode()">
+                {{ isSignupMode() ? 'Sign In' : 'Sign Up' }}
+              </span>
+            </p>
+          </div>
+
+          <!-- Divider -->
+          <div class="divider">
+            <span>OR</span>
+          </div>
+
+          <!-- Google Login -->
+          <ion-button
+            expand="block"
+            fill="outline"
+            type="button"
+            class="google-button"
+            (click)="loginWithGoogle()"
+            [disabled]="isLoading()"
+          >
+            <ion-icon name="logo-google" slot="start"></ion-icon>
+            <span>Continue with Google</span>
+          </ion-button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="features-section animate-fade-in-delay">
+      <div class="feature-item">
+        <ion-icon name="fitness"></ion-icon>
+        <span>Track Workouts</span>
+      </div>
+      <div class="feature-item">
+        <ion-icon name="nutrition"></ion-icon>
+        <span>Monitor Diet</span>
+      </div>
+      <div class="feature-item">
+        <ion-icon name="analytics"></ion-icon>
+        <span>View Progress</span>
+      </div>
+    </div>
+  </div>
+</ion-content>

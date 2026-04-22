@@ -1,0 +1,221 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="custom-toolbar">
+    <ion-title>Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="settings-content">
+  <div class="content-wrapper">
+    <!-- Profile Card -->
+    <div class="profile-card animate-fade-in">
+      <div class="profile-header">
+        <ion-avatar class="profile-avatar">
+          <div class="avatar-placeholder">
+            {{ name().charAt(0).toUpperCase() }}
+          </div>
+        </ion-avatar>
+        <div class="profile-info">
+          <h2>{{ name() || 'User' }}</h2>
+          <p>{{ email() }}</p>
+        </div>
+      </div>
+
+      <div class="profile-stats-row">
+        <div class="stat-chip">
+          <strong>{{ age() || '--' }}</strong>
+          <span>Age</span>
+        </div>
+        <div class="stat-chip">
+          <strong>{{ dailyStepGoal() | number }}</strong>
+          <span>Step goal</span>
+        </div>
+        <div class="stat-chip">
+          <strong>{{ dailyCalorieGoal() }}</strong>
+          <span>Calories</span>
+        </div>
+      </div>
+
+      <div class="profile-goal-pills">
+        <div class="goal-pill mint">Weight {{ weight() || '--' }} kg</div>
+        <div class="goal-pill sky">Height {{ height() || '--' }} cm</div>
+        <div class="goal-pill amber">{{ getFitnessGoalLabel(fitnessGoal()) }}</div>
+      </div>
+
+      <div *ngIf="weight() && height()" class="bmi-card">
+        <div class="bmi-label">Body Mass Index</div>
+        <div class="bmi-value">{{ getBMI() }}</div>
+      </div>
+
+      <div class="profile-details-list">
+        <button
+          type="button"
+          class="detail-row"
+          *ngFor="let item of detailItems()"
+          (click)="openDetail(item.key)"
+        >
+          <div class="detail-row-main">
+            <ion-icon [name]="item.icon"></ion-icon>
+            <div class="detail-copy">
+              <p class="detail-title">{{ item.title }}</p>
+              <p class="detail-subtitle">{{ item.subtitle }}</p>
+            </div>
+          </div>
+          <ion-icon name="chevron-forward" class="detail-arrow"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="section animate-slide-up">
+      <h3 class="section-title">
+        <ion-icon name="person"></ion-icon>
+        Personal Information
+      </h3>
+      <ion-card class="settings-card">
+        <ion-card-content>
+          <ion-list class="settings-list">
+            <ion-item>
+              <ion-label position="stacked">Name</ion-label>
+              <ion-input 
+                [(ngModel)]="name"
+                placeholder="Enter your name"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Age</ion-label>
+              <ion-input 
+                type="number" 
+                [(ngModel)]="age"
+                placeholder="Enter your age"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Weight (kg)</ion-label>
+              <ion-input 
+                type="number" 
+                [(ngModel)]="weight"
+                placeholder="Enter your weight"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Height (cm)</ion-label>
+              <ion-input 
+                type="number" 
+                [(ngModel)]="height"
+                placeholder="Enter your height"
+              ></ion-input>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Fitness Goals -->
+    <div class="section animate-slide-up delay-1">
+      <h3 class="section-title">
+        <ion-icon name="trophy"></ion-icon>
+        Fitness Goals
+      </h3>
+      <ion-card class="settings-card">
+        <ion-card-content>
+          <ion-list class="settings-list">
+            <ion-item>
+              <ion-label position="stacked">Primary Goal</ion-label>
+              <ion-select 
+                [(ngModel)]="fitnessGoal"
+                placeholder="Select your goal"
+              >
+                <ion-select-option value="lose_weight">Lose Weight</ion-select-option>
+                <ion-select-option value="gain_muscle">Gain Muscle</ion-select-option>
+                <ion-select-option value="stay_fit">Stay Fit</ion-select-option>
+                <ion-select-option value="endurance">Build Endurance</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Daily Step Goal</ion-label>
+              <ion-input 
+                type="number" 
+                [(ngModel)]="dailyStepGoal"
+                placeholder="10000"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Daily Calorie Goal</ion-label>
+              <ion-input 
+                type="number" 
+                [(ngModel)]="dailyCalorieGoal"
+                placeholder="2000"
+              ></ion-input>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Preferences -->
+    <div class="section animate-slide-up delay-2">
+      <h3 class="section-title">
+        <ion-icon name="notifications"></ion-icon>
+        Preferences
+      </h3>
+      <ion-card class="settings-card">
+        <ion-card-content>
+          <ion-list class="settings-list">
+            <ion-item>
+              <ion-icon name="moon" slot="start" class="item-icon"></ion-icon>
+              <ion-label>
+                <h3>Dark Mode</h3>
+                <p>Switch between light and dark theme</p>
+              </ion-label>
+              <ion-toggle 
+                [(ngModel)]="isDarkMode"
+                (ionChange)="toggleDarkMode()"
+                class="custom-toggle"
+              ></ion-toggle>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon name="notifications" slot="start" class="item-icon"></ion-icon>
+              <ion-label>
+                <h3>Notifications</h3>
+                <p>Receive workout and meal reminders</p>
+              </ion-label>
+              <ion-toggle 
+                [(ngModel)]="notificationsEnabled"
+                class="custom-toggle"
+              ></ion-toggle>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions animate-fade-in-delay">
+      <ion-button 
+        expand="block" 
+        (click)="saveProfile()"
+        class="save-button"
+      >
+        <ion-icon slot="start" name="save"></ion-icon>
+        Save Changes
+      </ion-button>
+
+      <ion-button 
+        expand="block" 
+        fill="outline"
+        color="danger"
+        (click)="logout()"
+        class="logout-button"
+      >
+        <ion-icon slot="start" name="log-out"></ion-icon>
+        Logout
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

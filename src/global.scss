@@ -1,0 +1,296 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap');
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+@import "@ionic/angular/css/palettes/dark.class.css";
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
+/**
+ * FitTrack Pro Custom Global Styles
+ * -----------------------------------------------------
+ */
+
+:root {
+  --app-bg: #f3f6fb;
+  --app-panel: #ffffff;
+  --app-text: #111827;
+  --app-muted: #6b7280;
+  --app-accent: #5ec7f5;
+  --app-accent-2: #9edb63;
+  --app-warn: #ff9f6d;
+  --app-dark: #0f172a;
+}
+
+* {
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6,
+ion-title {
+  font-family: 'Outfit', 'Manrope', sans-serif;
+}
+
+body {
+  background:
+    radial-gradient(circle at 8% 5%, rgba(94, 199, 245, 0.25), transparent 24%),
+    radial-gradient(circle at 92% 0%, rgba(158, 219, 99, 0.2), transparent 20%),
+    var(--app-bg);
+  color: var(--app-text);
+}
+
+/* Smooth Scrolling */
+ion-content {
+  --scroll-behavior: smooth;
+  --background: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 3px;
+
+  &:hover {
+    background: rgba(102, 126, 234, 0.5);
+  }
+}
+
+/* Global Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Utility Classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #5ec7f5 0%, #9edb63 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card Styles */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Styles */
+.gradient-button {
+  --background: linear-gradient(135deg, #5ec7f5 0%, #9edb63 100%);
+  --box-shadow: 0 6px 16px rgba(94, 199, 245, 0.28);
+  --border-radius: 12px;
+  font-weight: 700;
+  text-transform: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    --box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Safe Area Padding */
+.safe-area-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+}
+
+.safe-area-top {
+  padding-top: calc(env(safe-area-inset-top) + 16px);
+}
+
+/* Dark Mode Specific Styles */
+body.dark {
+  --ion-background-color: #121212;
+  --ion-text-color: #ffffff;
+  --ion-card-background: #1e1e1e;
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+
+  ion-spinner {
+    --color: #667eea;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+
+  ion-icon {
+    font-size: 64px;
+    color: #ddd;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #666;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 14px;
+    color: #999;
+    margin: 0;
+  }
+}
+
+/* Ripple Effect Enhancement */
+ion-ripple-effect {
+  color: rgba(102, 126, 234, 0.2);
+}
+
+/* Modal Styles */
+ion-modal {
+  --border-radius: 24px 24px 0 0;
+  --box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Toast Notifications */
+.custom-toast {
+  --background: linear-gradient(135deg, #5ec7f5 0%, #9edb63 100%);
+  --color: white;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  font-weight: 600;
+}
+
+/* Alert Dialogs */
+.custom-alert {
+  --background: white;
+  --max-width: 320px;
+  --border-radius: 16px;
+
+  .alert-button {
+    color: #2282bc;
+    font-weight: 700;
+  }
+}
+
+/* Page Transitions */
+.page-transition-enter {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.page-transition-leave {
+  animation: fadeIn 0.3s ease-out reverse;
+}
+

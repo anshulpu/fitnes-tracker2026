@@ -1,0 +1,56 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="custom-toolbar">
+    <ion-title>
+      Progress Overview
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="analytics-content">
+  <div class="content-wrapper">
+  <div class="headline-card">
+    <p class="headline-eyebrow">Weekly Snapshot</p>
+    <h2>Track your momentum and export your progress</h2>
+  </div>
+
+  <ion-card class="analytics-card">
+    <ion-card-content>
+      <h2>Weekly Steps</h2>
+      <canvas #stepsChartCanvas></canvas>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="analytics-card">
+    <ion-card-content>
+      <h2>Calories Burned</h2>
+      <canvas #caloriesChartCanvas></canvas>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="analytics-card">
+    <ion-card-content>
+      <h2>Workouts Completed</h2>
+      <canvas #workoutsChartCanvas></canvas>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="report-card">
+    <ion-card-content>
+      <h2>Reports & Exports</h2>
+      <p>Download your recent activity as CSV or a quick text summary (e.g., "Your January Fitness Report").</p>
+
+      <div class="report-actions">
+        <ion-button expand="block" fill="outline" (click)="downloadCsv()">
+          <ion-icon name="download" slot="start"></ion-icon>
+          Export Weekly CSV
+        </ion-button>
+
+        <ion-button expand="block" (click)="downloadMonthlySummary()">
+          <ion-icon name="document-text" slot="start"></ion-icon>
+          Download Monthly Summary
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+  </div>
+</ion-content>

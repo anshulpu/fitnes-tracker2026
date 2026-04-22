@@ -1,0 +1,38 @@
+<ion-content [fullscreen]="true" class="auth-shell">
+  <div class="bg-layer"></div>
+
+  <section class="auth-layout">
+    <header class="brand-head">
+      <div class="brand-icon-wrap">
+        <ion-icon name="pulse"></ion-icon>
+      </div>
+      <h1>FitTrack Pro</h1>
+      <p>Your Personal Fitness Companion</p>
+    </header>
+
+    <article class="role-card">
+      <div class="role-logo-wrap">
+        <img [src]="logoUrl || 'assets/fitness-center-logo.png'" (error)="onLogoError()" alt="Fitness center logo" class="role-logo" />
+      </div>
+
+      <h2>Welcome Back</h2>
+      <p class="card-subtitle">Choose your role to continue</p>
+
+      <p class="label">Login As</p>
+
+      <div class="role-actions">
+        <button class="role-btn admin" (click)="goToLogin('admin')">
+          <ion-icon name="shield-checkmark"></ion-icon>
+          Login as Admin
+        </button>
+
+        <button class="role-btn member" (click)="goToLogin('member')">
+          <ion-icon name="person"></ion-icon>
+          Login as Member
+        </button>
+      </div>
+
+      <button class="text-btn" (click)="goToSignup()">Create a new account</button>
+    </article>
+  </section>
+</ion-content>
