@@ -1,0 +1,1 @@
+import{a as e}from"./chunk-3NTB5MNN.js";import{f as r,oa as t}from"./chunk-QXBMNV2G.js";var s=(c,o)=>{let u=r(e),i=r(t);return u.isAuthenticated()?!0:i.createUrlTree(["/auth/role-selection"],{queryParams:{returnUrl:o.url}})};export{s as a};
