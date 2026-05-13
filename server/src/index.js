@@ -20,6 +20,7 @@ app.use(cors({
   origin: [
     'http://localhost:8100',
     'http://localhost:4200',
+    'https://effortless-churros-a284b1.netlify.app',
     /\.netlify\.app$/,
     process.env.FRONTEND_URL
   ].filter(Boolean),
