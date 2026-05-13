@@ -10,5 +10,5 @@ export const environment = {
     messagingSenderId: 'YOUR_PROD_SENDER_ID',
     appId: 'YOUR_PROD_APP_ID'
   },
-  apiBaseUrl: 'https://api.your-backend.com'
+  apiBaseUrl: 'https://fitness-tracker-api.onrender.com'
 };

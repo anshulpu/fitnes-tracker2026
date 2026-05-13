@@ -16,7 +16,15 @@ const app = express();
 const port = Number(process.env.PORT || 3000);
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:8100',
+    'http://localhost:4200',
+    /\.netlify\.app$/,
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
+  credentials: true
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 
