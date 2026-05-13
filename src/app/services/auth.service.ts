@@ -104,14 +104,18 @@ export class AuthService {
       const { data, error } = await this.db.auth.signUp({
         email: normalizedEmail,
         password,
-        options: { data: { name, role } }
+        options: {
+          data: { name, role },
+          // Skip email redirect so user can login immediately
+          emailRedirectTo: undefined
+        }
       });
 
       if (error) return { success: false, message: error.message };
       if (!data.user) return { success: false, message: 'Signup failed.' };
 
-      // Create profile row (trigger may handle this, but we ensure it exists)
-      const { error: profileError } = await this.db.from('profiles').upsert({
+      // Create profile row immediately (don't wait for trigger)
+      await this.db.from('profiles').upsert({
         id: data.user.id,
         email: normalizedEmail,
         name,
@@ -123,10 +127,15 @@ export class AuthService {
         updated_at: new Date().toISOString()
       });
 
-      if (profileError) console.warn('Profile upsert warning:', profileError.message);
+      // If session exists immediately (email confirmation disabled), set it
+      if (data.session) {
+        await this.loadAndSetProfile(data.user.id);
+        return { success: true };
+      }
 
-      // Auto sign-in after signup
-      return await this.login(normalizedEmail, password);
+      // Email confirmation is enabled — sign in directly
+      const loginResult = await this.login(normalizedEmail, password);
+      return loginResult;
     } catch (e: any) {
       return { success: false, message: e?.message || 'Signup failed.' };
     }
@@ -170,9 +179,12 @@ export class AuthService {
   async loginWithGoogle(): Promise<AuthResult> {
     const { error } = await this.db.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin }
+      options: {
+        redirectTo: window.location.origin + '/'
+      }
     });
     if (error) return { success: false, message: error.message };
+    // OAuth redirects the browser — no further action needed here
     return { success: true };
   }
 
