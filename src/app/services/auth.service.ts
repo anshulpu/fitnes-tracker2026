@@ -265,7 +265,7 @@ export class AuthService {
 
   private getHttpErrorMessage(error: any, fallback: string): string {
     if (error?.status === 0) {
-      return 'Cannot reach the server. Start the backend API on http://localhost:3000.';
+      return `Cannot reach the server. The backend API may be starting up, please wait a moment and try again.`;
     }
 
     if (typeof error?.error?.message === 'string' && error.error.message.trim()) {
