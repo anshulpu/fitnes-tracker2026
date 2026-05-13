@@ -1,38 +1,20 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { SupabaseService } from './supabase.service';
 import { StorageService } from './storage.service';
 import { User } from '../models/user.model';
-import { environment } from '../../environments/environment';
-
-interface LoginResponse {
-  token: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    role: 'admin' | 'member';
-    weight?: number;
-    goal_weight?: number;
-    dailyStepGoal?: number;
-    dailyCalorieGoal?: number;
-    created_at?: string;
-  };
-}
 
 type AuthResult = { success: true } | { success: false; message: string };
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   currentUser = signal<User | null>(null);
   isAuthenticated = signal<boolean>(false);
-  private jwtToken = signal<string | null>(null);
+
+  private get db() { return this.supabase.client; }
 
   constructor(
-    private http: HttpClient,
+    private supabase: SupabaseService,
     private storage: StorageService,
     private router: Router
   ) {
@@ -40,40 +22,54 @@ export class AuthService {
   }
 
   private async initAuth() {
-    const storedUser = await this.storage.get<User>('current_user');
-    const token = await this.storage.get<string>('jwt_token');
-
-    if (storedUser && token) {
-      this.currentUser.set(storedUser);
-      this.jwtToken.set(token);
-      this.isAuthenticated.set(true);
-      this.persistRole(storedUser.role);
-      return;
+    // Restore session from Supabase (handles token refresh automatically)
+    const { data: { session } } = await this.db.auth.getSession();
+    if (session?.user) {
+      await this.loadAndSetProfile(session.user.id);
     }
 
-    this.currentUser.set(null);
-    this.jwtToken.set(null);
-    this.isAuthenticated.set(false);
-    this.persistRole(undefined);
+    // Listen for auth state changes (login/logout/token refresh)
+    this.db.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        await this.loadAndSetProfile(session.user.id);
+      } else {
+        this.currentUser.set(null);
+        this.isAuthenticated.set(false);
+        this.persistRole(undefined);
+      }
+    });
+  }
+
+  private async loadAndSetProfile(userId: string) {
+    const { data: profile } = await this.db
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (profile) {
+      const user: User = this.mapProfile(profile);
+      this.currentUser.set(user);
+      this.isAuthenticated.set(true);
+      this.persistRole(user.role);
+      await this.storage.set('current_user', user, { secure: true });
+    }
   }
 
   async login(email: string, password: string): Promise<AuthResult> {
     try {
-      const normalizedEmail = this.normalizeEmail(email);
-      const response = await firstValueFrom(
-        this.http.post<LoginResponse>(`${environment.apiBaseUrl}/login`, {
-          email: normalizedEmail,
-          password
-        })
-      );
+      const { data, error } = await this.db.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password
+      });
 
-      const mapped = this.mapApiUser(response.user);
-      await this.setSession(mapped, response.token);
+      if (error) return { success: false, message: error.message };
+      if (!data.user) return { success: false, message: 'Login failed.' };
+
+      await this.loadAndSetProfile(data.user.id);
       return { success: true };
-    } catch (error) {
-      const message = this.getHttpErrorMessage(error, 'Login failed.');
-      console.error('Login failed:', error);
-      return { success: false, message };
+    } catch (e: any) {
+      return { success: false, message: e?.message || 'Login failed.' };
     }
   }
 
@@ -83,19 +79,16 @@ export class AuthService {
     selectedRole: User['role']
   ): Promise<{ success: boolean; message?: string }> {
     const result = await this.login(email, password);
-    if (!result.success) {
-      return { success: false, message: result.message };
-    }
+    if (!result.success) return result;
 
-    const signedInRole = this.getUserRole() as User['role'];
+    const signedInRole = this.currentUser()?.role;
     if (signedInRole !== selectedRole) {
       await this.logout();
       return {
         success: false,
-        message: `This account is ${signedInRole}. Please switch role and try again.`
+        message: `This account is registered as ${signedInRole}. Please select the correct role.`
       };
     }
-
     return { success: true };
   }
 
@@ -106,129 +99,116 @@ export class AuthService {
     role: User['role'] = 'member'
   ): Promise<AuthResult> {
     try {
-      const normalizedEmail = this.normalizeEmail(email);
-      await firstValueFrom(
-        this.http.post(`${environment.apiBaseUrl}/register`, {
-          email: normalizedEmail,
-          password,
-          name,
-          role: role === 'admin' ? 'admin' : 'member'
-        })
-      );
+      const normalizedEmail = email.trim().toLowerCase();
 
-      const loginResult = await this.login(normalizedEmail, password);
-      if (!loginResult.success) {
-        return { success: false, message: loginResult.message };
-      }
-      return { success: true };
-    } catch (error) {
-      const message = this.getHttpErrorMessage(
-        error,
-        'Signup failed. Please try again.'
-      );
-      console.error('Signup failed:', error);
-      return { success: false, message };
+      const { data, error } = await this.db.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: { data: { name, role } }
+      });
+
+      if (error) return { success: false, message: error.message };
+      if (!data.user) return { success: false, message: 'Signup failed.' };
+
+      // Create profile row (trigger may handle this, but we ensure it exists)
+      const { error: profileError } = await this.db.from('profiles').upsert({
+        id: data.user.id,
+        email: normalizedEmail,
+        name,
+        role,
+        daily_step_goal: 10000,
+        daily_calorie_goal: 2000,
+        is_blocked: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+
+      if (profileError) console.warn('Profile upsert warning:', profileError.message);
+
+      // Auto sign-in after signup
+      return await this.login(normalizedEmail, password);
+    } catch (e: any) {
+      return { success: false, message: e?.message || 'Signup failed.' };
     }
   }
 
   async logout() {
+    await this.db.auth.signOut();
     this.currentUser.set(null);
-    this.jwtToken.set(null);
     this.isAuthenticated.set(false);
     this.persistRole(undefined);
     await this.storage.remove('jwt_token');
     await this.storage.remove('current_user');
-    if (this.router && this.router.navigate) this.router.navigate(['/login']);
+    if (this.router?.navigate) this.router.navigate(['/login']);
   }
 
   async updateProfile(updates: Partial<User>) {
     const user = this.currentUser();
     if (!user) return;
 
-    try {
-      const response = await firstValueFrom(
-        this.http.put<any>(`${environment.apiBaseUrl}/user/profile`, {
-          name: updates.name,
-          weight: updates.weight,
-          goal_weight: (updates as any).goalWeight ?? undefined,
-          dailyStepGoal: updates.dailyStepGoal,
-          dailyCalorieGoal: updates.dailyCalorieGoal
-        })
-      );
+    const { data, error } = await this.db
+      .from('profiles')
+      .update({
+        name: updates.name,
+        weight: updates.weight,
+        goal_weight: (updates as any).goalWeight ?? undefined,
+        daily_step_goal: updates.dailyStepGoal,
+        daily_calorie_goal: updates.dailyCalorieGoal,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
+      .select()
+      .single();
 
-      const merged: User = {
-        ...user,
-        ...updates,
-        name: response?.name ?? updates.name ?? user.name,
-        weight: response?.weight ?? updates.weight ?? user.weight,
-        dailyStepGoal: response?.daily_step_goal ?? updates.dailyStepGoal ?? user.dailyStepGoal,
-        dailyCalorieGoal: response?.daily_calorie_goal ?? updates.dailyCalorieGoal ?? user.dailyCalorieGoal
-      };
-
+    if (!error && data) {
+      const merged: User = { ...user, ...updates };
       this.currentUser.set(merged);
       await this.storage.set('current_user', merged, { secure: true });
-    } catch (error) {
-      console.error('Failed to update profile:', error);
     }
   }
 
   async loginWithGoogle(): Promise<AuthResult> {
-    // Demo Google flow signs in as the member demo account.
-    return this.login('member@fittrack.com', 'member123');
+    const { error } = await this.db.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) return { success: false, message: error.message };
+    return { success: true };
   }
 
   async sendPasswordReset(email: string): Promise<boolean> {
-    // Demo-only reset signal until dedicated backend endpoint is added.
-    if (!email?.trim()) {
-      return false;
-    }
-    return true;
+    if (!email?.trim()) return false;
+    const { error } = await this.db.auth.resetPasswordForEmail(email.trim());
+    return !error;
   }
 
   async getJwtToken(): Promise<string | null> {
-    const inMemory = this.jwtToken();
-    if (inMemory) {
-      return inMemory;
-    }
-
-    const token = await this.storage.get<string>('jwt_token');
-    if (token) {
-      this.jwtToken.set(token);
-    }
-    return token || null;
+    const { data: { session } } = await this.db.auth.getSession();
+    return session?.access_token ?? null;
   }
 
   async isEmailVerified(): Promise<boolean> {
-    // Email verification is not enforced by this backend implementation.
-    return true;
+    const { data: { user } } = await this.db.auth.getUser();
+    return !!user?.email_confirmed_at;
   }
 
   hasRole(requiredRoles: Array<User['role']>): boolean {
     const user = this.currentUser();
-    if (!user || !user.role) {
-      return false;
-    }
+    if (!user?.role) return false;
     return requiredRoles.includes(user.role);
   }
 
   getUserRole(): string {
     const user = this.currentUser();
-    if (user?.role) {
-      return user.role;
-    }
-
+    if (user?.role) return user.role;
     if (typeof localStorage !== 'undefined') {
       return localStorage.getItem('user_role') || 'member';
     }
-
     return 'member';
   }
 
   private persistRole(role?: User['role']) {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
+    if (typeof localStorage === 'undefined') return;
     if (role) {
       localStorage.setItem('user_role', role);
     } else {
@@ -236,46 +216,16 @@ export class AuthService {
     }
   }
 
-  private mapApiUser(user: LoginResponse['user']): User {
+  private mapProfile(p: any): User {
     return {
-      id: String(user.id),
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      weight: user.weight,
-      dailyStepGoal: user.dailyStepGoal,
-      dailyCalorieGoal: user.dailyCalorieGoal,
-      fitnessGoal: 'stay_fit'
+      id: p.id,
+      email: p.email,
+      name: p.name,
+      role: p.role,
+      weight: p.weight,
+      dailyStepGoal: p.daily_step_goal,
+      dailyCalorieGoal: p.daily_calorie_goal,
+      fitnessGoal: p.fitness_goal || 'stay_fit'
     };
-  }
-
-  private async setSession(user: User, token: string) {
-    this.jwtToken.set(token);
-    this.currentUser.set(user);
-    this.isAuthenticated.set(true);
-
-    await this.storage.set('jwt_token', token, { secure: true });
-    await this.storage.set('current_user', user, { secure: true });
-    this.persistRole(user.role);
-  }
-
-  private normalizeEmail(email: string) {
-    return String(email || '').trim().toLowerCase();
-  }
-
-  private getHttpErrorMessage(error: any, fallback: string): string {
-    if (error?.status === 0) {
-      return `Cannot reach the server. The backend API may be starting up, please wait a moment and try again.`;
-    }
-
-    if (typeof error?.error?.message === 'string' && error.error.message.trim()) {
-      return error.error.message;
-    }
-
-    if (typeof error?.message === 'string' && error.message.trim()) {
-      return error.message;
-    }
-
-    return fallback;
   }
 }

@@ -1,7 +1,6 @@
 export const environment = {
   production: true,
   useMockAuth: false,
-  // TODO: Replace with your actual Firebase production config
   firebase: {
     apiKey: 'YOUR_PROD_API_KEY',
     authDomain: 'YOUR_PROD_PROJECT.firebaseapp.com',
@@ -10,5 +9,7 @@ export const environment = {
     messagingSenderId: 'YOUR_PROD_SENDER_ID',
     appId: 'YOUR_PROD_APP_ID'
   },
-  apiBaseUrl: 'https://fitness-tracker-api-gk3i.onrender.com'
+  apiBaseUrl: 'https://fitness-tracker-api-gk3i.onrender.com',
+  supabaseUrl: 'YOUR_SUPABASE_URL',
+  supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY'
 };

@@ -5,7 +5,6 @@
 export const environment = {
   production: false,
   useMockAuth: false,
-  // TODO: Replace with your actual Firebase project config
   firebase: {
     apiKey: 'YOUR_DEV_API_KEY',
     authDomain: 'YOUR_DEV_PROJECT.firebaseapp.com',
@@ -14,7 +13,9 @@ export const environment = {
     messagingSenderId: 'YOUR_DEV_SENDER_ID',
     appId: 'YOUR_DEV_APP_ID'
   },
-  apiBaseUrl: 'http://localhost:3000'
+  apiBaseUrl: 'http://localhost:3000',
+  supabaseUrl: 'YOUR_SUPABASE_URL',
+  supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY'
 };
 
 /*
