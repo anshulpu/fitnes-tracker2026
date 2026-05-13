@@ -17,41 +17,58 @@ export class AppComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // Handle OAuth redirect callback (Google login returns here with a token in the URL hash)
-    const { data: { session } } = await this.supabase.client.auth.getSession();
+    // Listen for OAuth callback (SIGNED_IN event fires when Google redirects back)
+    this.supabase.client.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Ensure profile row exists (Google OAuth new users may not have one yet)
+        await this.ensureProfile(session.user);
 
-    if (session?.user) {
-      // User is logged in — ensure profile exists then navigate to dashboard
-      await this.ensureProfile(session.user);
-      const role = this.authService.getUserRole();
-      if (role === 'admin') {
-        this.router.navigate(['/admin/dashboard']);
-      } else {
-        this.router.navigate(['/member/dashboard']);
+        // Only navigate if currently on an auth page (avoid redirecting mid-session)
+        const currentUrl = this.router.url;
+        const isOnAuthPage = currentUrl === '/' ||
+          currentUrl === '' ||
+          currentUrl.startsWith('/#') ||
+          currentUrl.includes('/auth/');
+
+        if (isOnAuthPage) {
+          // Wait for profile to be loaded into the signal
+          await this.authService.waitForInit();
+          const role = this.authService.getUserRole();
+          if (role === 'admin') {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            this.router.navigate(['/member/dashboard']);
+          }
+        }
       }
-    }
+    });
   }
 
   private async ensureProfile(user: any) {
-    const { data: existing } = await this.supabase.client
-      .from('profiles')
-      .select('id, role')
-      .eq('id', user.id)
-      .single();
+    try {
+      const { data: existing } = await this.supabase.client
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
 
-    if (!existing) {
-      // Create profile if trigger didn't fire (e.g. Google OAuth new user)
-      await this.supabase.client.from('profiles').upsert({
-        id: user.id,
-        email: user.email,
-        name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
-        role: user.user_metadata?.role || 'member',
-        daily_step_goal: 10000,
-        daily_calorie_goal: 2000,
-        is_blocked: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
+      if (!existing) {
+        await this.supabase.client.from('profiles').upsert({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.full_name ||
+                user.user_metadata?.name ||
+                user.email?.split('@')[0] || 'User',
+          role: user.user_metadata?.role || 'member',
+          daily_step_goal: 10000,
+          daily_calorie_goal: 2000,
+          is_blocked: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+    } catch (e) {
+      console.error('ensureProfile error:', e);
     }
   }
 }

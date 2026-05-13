@@ -11,6 +11,9 @@ export class AuthService {
   currentUser = signal<User | null>(null);
   isAuthenticated = signal<boolean>(false);
 
+  // Guards await this before checking auth state — prevents blank page on refresh
+  private _initPromise: Promise<void>;
+
   private get db() { return this.supabase.client; }
 
   constructor(
@@ -18,18 +21,26 @@ export class AuthService {
     private storage: StorageService,
     private router: Router
   ) {
-    this.initAuth();
+    this._initPromise = this.initAuth();
   }
 
-  private async initAuth() {
-    // Restore session from Supabase (handles token refresh automatically)
-    const { data: { session } } = await this.db.auth.getSession();
-    if (session?.user) {
-      await this.loadAndSetProfile(session.user.id);
+  /** Guards call this to wait for session restore before checking isAuthenticated() */
+  waitForInit(): Promise<void> {
+    return this._initPromise;
+  }
+
+  private async initAuth(): Promise<void> {
+    try {
+      const { data: { session } } = await this.db.auth.getSession();
+      if (session?.user) {
+        await this.loadAndSetProfile(session.user.id);
+      }
+    } catch (e) {
+      console.error('Auth init error:', e);
     }
 
-    // Listen for auth state changes (login/logout/token refresh)
-    this.db.auth.onAuthStateChange(async (_event, session) => {
+    // Listen for future auth state changes (login/logout/token refresh/OAuth callback)
+    this.db.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         await this.loadAndSetProfile(session.user.id);
       } else {
@@ -40,19 +51,23 @@ export class AuthService {
     });
   }
 
-  private async loadAndSetProfile(userId: string) {
-    const { data: profile } = await this.db
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+  private async loadAndSetProfile(userId: string): Promise<void> {
+    try {
+      const { data: profile } = await this.db
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    if (profile) {
-      const user: User = this.mapProfile(profile);
-      this.currentUser.set(user);
-      this.isAuthenticated.set(true);
-      this.persistRole(user.role);
-      await this.storage.set('current_user', user, { secure: true });
+      if (profile) {
+        const user: User = this.mapProfile(profile);
+        this.currentUser.set(user);
+        this.isAuthenticated.set(true);
+        this.persistRole(user.role);
+        await this.storage.set('current_user', user, { secure: true });
+      }
+    } catch (e) {
+      console.error('Failed to load profile:', e);
     }
   }
 
@@ -104,17 +119,13 @@ export class AuthService {
       const { data, error } = await this.db.auth.signUp({
         email: normalizedEmail,
         password,
-        options: {
-          data: { name, role },
-          // Skip email redirect so user can login immediately
-          emailRedirectTo: undefined
-        }
+        options: { data: { name, role } }
       });
 
       if (error) return { success: false, message: error.message };
       if (!data.user) return { success: false, message: 'Signup failed.' };
 
-      // Create profile row immediately (don't wait for trigger)
+      // Create profile row immediately (don't wait for DB trigger)
       await this.db.from('profiles').upsert({
         id: data.user.id,
         email: normalizedEmail,
@@ -127,15 +138,14 @@ export class AuthService {
         updated_at: new Date().toISOString()
       });
 
-      // If session exists immediately (email confirmation disabled), set it
+      // If session exists immediately (email confirmation disabled in Supabase)
       if (data.session) {
         await this.loadAndSetProfile(data.user.id);
         return { success: true };
       }
 
-      // Email confirmation is enabled — sign in directly
-      const loginResult = await this.login(normalizedEmail, password);
-      return loginResult;
+      // Email confirmation enabled — try signing in directly
+      return await this.login(normalizedEmail, password);
     } catch (e: any) {
       return { success: false, message: e?.message || 'Signup failed.' };
     }
@@ -148,7 +158,7 @@ export class AuthService {
     this.persistRole(undefined);
     await this.storage.remove('jwt_token');
     await this.storage.remove('current_user');
-    if (this.router?.navigate) this.router.navigate(['/login']);
+    this.router.navigate(['/auth/role-selection']);
   }
 
   async updateProfile(updates: Partial<User>) {
@@ -184,13 +194,15 @@ export class AuthService {
       }
     });
     if (error) return { success: false, message: error.message };
-    // OAuth redirects the browser — no further action needed here
+    // Browser will redirect — onAuthStateChange handles the rest on return
     return { success: true };
   }
 
   async sendPasswordReset(email: string): Promise<boolean> {
     if (!email?.trim()) return false;
-    const { error } = await this.db.auth.resetPasswordForEmail(email.trim());
+    const { error } = await this.db.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: window.location.origin + '/'
+    });
     return !error;
   }
 
